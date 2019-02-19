@@ -9,11 +9,11 @@
     availability_zones: "{{ zone }}"
     health_check_type: ELB
     health_check_period: 300
-    desired_capacity: 5
+    desired_capacity: 2
     replace_all_instances: yes
     replace_batch_size: 5
     min_size: 2
-    max_size: 10
+    max_size: 4
     load_balancers:
       - webapp
     state: present
