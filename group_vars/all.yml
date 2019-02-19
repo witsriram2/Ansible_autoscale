@@ -1,0 +1,15 @@
+---
+# group_vars/all.yml
+
+region: us-east-2
+zone: us-east-2c
+keypair: sriram
+security_groups: launch-wizard-1
+instance_type: t2.micro
+name: instance_1
+volumes:
+  - device_name: /dev/sda1
+    device_type: gp2
+    volume_size: 20
+    delete_on_termination: true
+domain: YOUR_DOMAIN_NAME

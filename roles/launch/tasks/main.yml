@@ -1,0 +1,41 @@
+---
+# roles/launch/tasks/main.yml
+
+- name: Search for the latest Ubuntu 14.04 AMI
+  ec2_ami_find:
+    region: "{{ region }}"
+    name: "ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*"
+    owner: 099720109477
+    sort: name
+    sort_order: descending
+    sort_end: 1
+    no_result_action: fail
+  register: ami_result
+
+- name: Launch new instance
+  ec2:
+    region: "{{ region }}"
+    keypair: "{{ keypair }}"
+    zone: "{{ zone }}"
+    group: "{{ security_groups }}"
+    image: "{{ ami_result.results[0].ami_id }}"
+    instance_type: "{{ instance_type }}"
+    instance_tags:
+      Name: "{{ name }}"
+    volumes: "{{ volumes }}"
+    wait: yes
+  register: ec2
+
+- name: Add new instances to host group
+  add_host:
+    name: "{{ ec2.instances[0].public_dns_name }}"
+    groups: "ami-build"
+    ec2_id: "{{ ec2.instances[0].id }}"
+
+- name: Wait for instance to boot
+  wait_for:
+    host: "{{ ec2.instances[0].public_dns_name }}"
+    port: 22
+    delay: 30
+    timeout: 300
+    state: started

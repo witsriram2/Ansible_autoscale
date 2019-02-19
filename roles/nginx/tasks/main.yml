@@ -1,0 +1,45 @@
+---
+# roles/nginx/tasks/main.yml
+
+
+- name: ensure nginx is at the latest versio
+  apt: name=nginx state=latest
+  become: yes
+
+- name: start nginx
+  service:
+    name: nginx
+    state: started
+  become: yes
+
+- name: copy the nginx config file and restart nginx
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/sites-available/default
+  become: yes
+  
+- name: create symlink
+  file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+  become: yes
+
+- name: Start pm2
+  command: pm2 start /srv/www/webapp/app.js --name testingapp
+  become: yes
+
+- name: adding to bin
+  command: env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup upstart -u ubuntu --hp /home/ubuntu
+  become: yes
+
+- name: adding to bin
+  command: pm2 save
+  become: yes
+
+- name: start nginx
+  service:
+    name: nginx
+    state: restarted
+  become: yes
+

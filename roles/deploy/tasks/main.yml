@@ -1,0 +1,55 @@
+---
+# roles/deploy/tasks/main.yml
+
+- name: Install git
+  apt:
+    pkg: git
+    state: present
+  become: yes
+
+- name: Create www directory
+  file:
+    path: /srv/www
+    owner: ubuntu
+    group: ubuntu
+    state: directory
+  become: yes
+
+- name: Create www directory
+  file:
+    path: /etc/upstart
+    owner: ubuntu
+    group: ubuntu
+    state: directory
+  become: yes
+
+- name: Import the NodeSource GPG key into apt
+  apt_key:
+    url: https://keyserver.ubuntu.com/pks/lookup?op=get&fingerprint=on&search=0x1655A0AB68576280
+    id: "68576280"
+    state: present
+  become: yes
+
+- name: NodeSource repository
+  apt_repository:
+    repo: 'deb https://deb.nodesource.com/node_8.x xenial main'
+  become: yes
+
+- name: Install NodeJS
+  apt:
+    state: present
+    name: nodejs
+  become: yes
+
+- name: Clone repository
+  git:
+    repo: "https://github.com/witsriram2/websimple.git"
+    dest: /srv/www/webapp
+    version: master
+
+- name: Install "pm2" node.js package globally.
+  npm:
+    name: pm2
+    global: yes
+  become: yes
+
